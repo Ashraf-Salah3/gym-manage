@@ -33,7 +33,7 @@ const AdminLogin = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:" + process.env.PORT + "/api/admin/login",
+        "https://fitlife-gym-management-system.onrender.com/api/admin/login",
         { email, password },
         { withCredentials: true }
       );

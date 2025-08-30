@@ -24,7 +24,7 @@ console.log("👉 __dirname is:", __dirname);
 console.log("👉 Static path is:", path.join(__dirname, "../client/dist"));
 
 // middleware
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: "https://fitlife-gym-management-system.onrender.com", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/admin", adminRoutes);

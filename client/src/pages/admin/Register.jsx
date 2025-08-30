@@ -74,7 +74,7 @@ const AdminRegister = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:" + process.env.PORT + "/api/admin/register",
+        "https://fitlife-gym-management-system.onrender.com/api/admin/register",
         form,
         { withCredentials: true }
       );

@@ -15,7 +15,7 @@ const EditMember = ({ member, onCancel, onUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:${process.env.PORT}/api/members/${member._id}`, form, {
+      await axios.put(`https://fitlife-gym-management-system.onrender.com/api/members/${member._id}`, form, {
         withCredentials: true
       });
       onUpdate(); // 🔽 NEW: Refresh list

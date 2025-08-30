@@ -17,7 +17,7 @@ const AddMember = ({ onAddSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:' + process.env.PORT + '/api/members', form, {
+      await axios.post('https://fitlife-gym-management-system.onrender.com/api/members', form, {
         withCredentials: true
       });
       onAddSuccess(); // refresh list

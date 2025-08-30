@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:' + process.env.PORT + '/api/auth/check-auth', {
+    axios.get('https://fitlife-gym-management-system.onrender.com/api/auth/check-auth', {
       withCredentials: true
     })
     .then(() => setAuth(true))

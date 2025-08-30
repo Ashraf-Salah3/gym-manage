@@ -36,7 +36,7 @@ const MemberLogin = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:" + process.env.PORT + "/api/members/login",
+        "https://fitlife-gym-management-system.onrender.com/api/members/login",
         { email, password },
         { withCredentials: true }
       );
