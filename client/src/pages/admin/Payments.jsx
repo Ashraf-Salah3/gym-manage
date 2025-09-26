@@ -11,21 +11,22 @@ import {
   DollarSign,
   Users,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const planRates = {
   Basic: 500,
   Standard: 1000,
   Premium: 1500,
-  VIP: 2000
+  VIP: 2000,
 };
 
 const planColors = {
   Basic: "bg-blue-100 text-blue-800",
   Standard: "bg-green-100 text-green-800",
   Premium: "bg-purple-100 text-purple-800",
-  VIP: "bg-yellow-100 text-yellow-800"
+  VIP: "bg-yellow-100 text-yellow-800",
 };
 
 const Payments = () => {
@@ -38,9 +39,9 @@ const Payments = () => {
   const [loading, setLoading] = useState(false);
   const [paymentData, setPaymentData] = useState({
     amount: "",
-    plan: ""
+    plan: "",
   });
-
+  const BackendUrl = import.meta.env.VITE_BACKEND_URL;
   // Fetch members
   useEffect(() => {
     fetchMembers();
@@ -51,13 +52,15 @@ const Payments = () => {
     let filtered = members;
 
     if (searchTerm) {
-      filtered = filtered.filter(member =>
+      filtered = filtered.filter((member) =>
         member.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     if (filterPlan !== "All") {
-      filtered = filtered.filter(member => member.membershipType === filterPlan);
+      filtered = filtered.filter(
+        (member) => member.membershipType === filterPlan
+      );
     }
 
     setFilteredMembers(filtered);
@@ -66,10 +69,12 @@ const Payments = () => {
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/members", { withCredentials: true });
+      const res = await axios.get(`${BackendUrl}/members`, {
+        withCredentials: true,
+      });
       setMembers(res.data);
-    } catch (err) {
-      console.error("Error fetching members", err);
+    } catch {
+      toast.error("Error fetching members");
     } finally {
       setLoading(false);
     }
@@ -80,7 +85,7 @@ const Payments = () => {
     setSelectedMember(member);
     setPaymentData({
       amount: planRates[member.membershipType] || "",
-      plan: member.membershipType
+      plan: member.membershipType,
     });
     setShowPaymentModal(true);
   };
@@ -91,18 +96,18 @@ const Payments = () => {
     setLoading(true);
     try {
       await axios.post(
-        "/api/payments/pay",
+        `${BackendUrl}/payments/pay`,
         {
           memberId: selectedMember._id,
           amount: paymentData.amount,
-          plan: paymentData.plan
+          plan: paymentData.plan,
         },
         { withCredentials: true }
       );
       setShowPaymentModal(false);
       fetchMembers();
     } catch (err) {
-      console.error("Error making payment", err);
+      toast.error("Error making payment", err);
     } finally {
       setLoading(false);
     }
@@ -111,10 +116,13 @@ const Payments = () => {
   // View Receipt
   const viewReceipt = async (paymentId) => {
     try {
-      const res = await axios.get(`/api/payments/receipt/${paymentId}`, {
-        responseType: "blob",
-        withCredentials: true
-      });
+      const res = await axios.get(
+        `${BackendUrl}/payments/receipt/${paymentId}`,
+        {
+          responseType: "blob",
+          withCredentials: true,
+        }
+      );
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -122,7 +130,7 @@ const Payments = () => {
       document.body.appendChild(link);
       link.click();
     } catch (err) {
-      console.error("Error downloading receipt", err);
+      toast.error("Error downloading receipt", err);
     }
   };
 
@@ -130,25 +138,27 @@ const Payments = () => {
   const sendReminder = async (member) => {
     try {
       await axios.post(
-        "/api/reminders",
+        `${BackendUrl}/reminders`,
         {
           memberId: member._id,
           amount: planRates[member.membershipType] || 0,
           dueDate: new Date(), // you can calculate actual due date
-           // replace with dynamic admin.gymName if available
+          // replace with dynamic admin.gymName if available
         },
         { withCredentials: true }
       );
       alert("Reminder sent to member's dashboard!");
-    } catch (err) {
-      console.error("Error sending reminder", err);
+    } catch {
+      toast.error("Error sending reminder");
     }
   };
 
   // Calculate payment status
   const getPaymentStatus = (lastPaymentDate) => {
     if (!lastPaymentDate) return "never";
-    const daysSincePayment = Math.floor((new Date() - new Date(lastPaymentDate)) / (1000 * 60 * 60 * 24));
+    const daysSincePayment = Math.floor(
+      (new Date() - new Date(lastPaymentDate)) / (1000 * 60 * 60 * 24)
+    );
     if (daysSincePayment > 30) return "overdue";
     if (daysSincePayment > 25) return "due-soon";
     return "current";
@@ -158,14 +168,14 @@ const Payments = () => {
     never: "bg-gray-100 text-gray-800",
     overdue: "bg-red-100 text-red-800",
     "due-soon": "bg-orange-100 text-orange-800",
-    current: "bg-green-100 text-green-800"
+    current: "bg-green-100 text-green-800",
   };
 
   const statusLabels = {
     never: "Never Paid",
     overdue: "Overdue",
     "due-soon": "Due Soon",
-    current: "Current"
+    current: "Current",
   };
 
   return (
@@ -187,27 +197,43 @@ const Payments = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 min-w-fit">
               <div className="bg-blue-50 rounded-xl p-4 text-center">
                 <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-blue-700">{members.length}</div>
+                <div className="text-2xl font-bold text-blue-700">
+                  {members.length}
+                </div>
                 <div className="text-sm text-blue-600">Total Members</div>
               </div>
               <div className="bg-green-50 rounded-xl p-4 text-center">
                 <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-green-700">
-                  {members.filter(m => getPaymentStatus(m.lastPaymentDate) === "current").length}
+                  {
+                    members.filter(
+                      (m) => getPaymentStatus(m.lastPaymentDate) === "current"
+                    ).length
+                  }
                 </div>
                 <div className="text-sm text-green-600">Current</div>
               </div>
               <div className="bg-red-50 rounded-xl p-4 text-center">
                 <AlertCircle className="w-6 h-6 text-red-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-red-700">
-                  {members.filter(m => getPaymentStatus(m.lastPaymentDate) === "overdue").length}
+                  {
+                    members.filter(
+                      (m) => getPaymentStatus(m.lastPaymentDate) === "overdue"
+                    ).length
+                  }
                 </div>
                 <div className="text-sm text-red-600">Overdue</div>
               </div>
               <div className="bg-purple-50 rounded-xl p-4 text-center">
                 <DollarSign className="w-6 h-6 text-purple-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-purple-700">
-                  ₹{members.reduce((sum, m) => sum + (planRates[m.membershipType] || 0), 0).toLocaleString()}
+                  E
+                  {members
+                    .reduce(
+                      (sum, m) => sum + (planRates[m.membershipType] || 0),
+                      0
+                    )
+                    .toLocaleString()}
                 </div>
                 <div className="text-sm text-purple-600">Total Value</div>
               </div>
@@ -259,50 +285,80 @@ const Payments = () => {
               <table className="min-w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Member</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Plan</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Amount</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Last Payment</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">Actions</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                      Member
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                      Plan
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                      Amount
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                      Last Payment
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredMembers.length > 0 ? (
                     filteredMembers.map((member) => {
-                      const paymentStatus = getPaymentStatus(member.lastPaymentDate);
+                      const paymentStatus = getPaymentStatus(
+                        member.lastPaymentDate
+                      );
                       return (
-                        <tr key={member._id} className="hover:bg-gray-50 transition-colors">
+                        <tr
+                          key={member._id}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
                           <td className="px-6 py-4">
                             <div className="flex items-center">
                               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                                 {member.name.charAt(0).toUpperCase()}
                               </div>
                               <div className="ml-3">
-                                <div className="font-medium text-gray-900">{member.name}</div>
+                                <div className="font-medium text-gray-900">
+                                  {member.name}
+                                </div>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${planColors[member.membershipType]}`}>
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                planColors[member.membershipType]
+                              }`}
+                            >
                               {member.membershipType}
                             </span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="font-semibold text-gray-900">
-                              ₹{planRates[member.membershipType]?.toLocaleString() || "-"}
+                              E
+                              {planRates[
+                                member.membershipType
+                              ]?.toLocaleString() || "-"}
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center text-gray-600">
                               <Calendar className="w-4 h-4 mr-2" />
                               {member.lastPaymentDate
-                                ? new Date(member.lastPaymentDate).toLocaleDateString()
+                                ? new Date(
+                                    member.lastPaymentDate
+                                  ).toLocaleDateString()
                                 : "No payment yet"}
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[paymentStatus]}`}>
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[paymentStatus]}`}
+                            >
                               {statusLabels[paymentStatus]}
                             </span>
                           </td>
@@ -321,12 +377,16 @@ const Payments = () => {
                               {/* View Receipt */}
                               {member.lastPaymentId && (
                                 <button
-                                  onClick={() => viewReceipt(member.lastPaymentId)}
+                                  onClick={() =>
+                                    viewReceipt(member.lastPaymentId)
+                                  }
                                   className="flex items-center space-x-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 shadow-sm"
                                   title="Download Receipt"
                                 >
                                   <FileText size={16} />
-                                  <span className="hidden sm:inline">Receipt</span>
+                                  <span className="hidden sm:inline">
+                                    Receipt
+                                  </span>
                                 </button>
                               )}
 
@@ -349,8 +409,12 @@ const Payments = () => {
                       <td colSpan="6" className="px-6 py-12 text-center">
                         <div className="text-gray-500">
                           <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                          <p className="text-lg font-medium">No members found</p>
-                          <p className="text-sm">Try adjusting your search or filter criteria</p>
+                          <p className="text-lg font-medium">
+                            No members found
+                          </p>
+                          <p className="text-sm">
+                            Try adjusting your search or filter criteria
+                          </p>
                         </div>
                       </td>
                     </tr>
@@ -367,7 +431,9 @@ const Payments = () => {
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
               {/* Modal Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">Process Payment</h2>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Process Payment
+                </h2>
                 <button
                   onClick={() => setShowPaymentModal(false)}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -385,15 +451,21 @@ const Payments = () => {
                       {selectedMember?.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="ml-3">
-                      <div className="font-medium text-gray-900">{selectedMember?.name}</div>
-                      <div className="text-sm text-gray-600">Member ID: {selectedMember?._id.slice(-6)}</div>
+                      <div className="font-medium text-gray-900">
+                        {selectedMember?.name}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Member ID: {selectedMember?._id.slice(-6)}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Plan */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Membership Plan</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Membership Plan
+                  </label>
                   <input
                     type="text"
                     value={paymentData.plan}
@@ -404,13 +476,22 @@ const Payments = () => {
 
                 {/* Amount */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Payment Amount</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Payment Amount
+                  </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                      E
+                    </span>
                     <input
                       type="number"
                       value={paymentData.amount}
-                      onChange={(e) => setPaymentData({ ...paymentData, amount: e.target.value })}
+                      onChange={(e) =>
+                        setPaymentData({
+                          ...paymentData,
+                          amount: e.target.value,
+                        })
+                      }
                       className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="Enter amount"
                       required

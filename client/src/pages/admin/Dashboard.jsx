@@ -6,26 +6,32 @@ import {
   CreditCard,
   Megaphone,
   LayoutDashboard,
-  Dumbbell
+  Dumbbell,
 } from "lucide-react";
+
+import { toast } from "sonner";
 
 const AdminDashboard = () => {
   const [memberCount, setMemberCount] = useState(0);
   const [announcementCount, setAnnouncementCount] = useState(0);
-
+  const BackendUrl = import.meta.env.VITE_BACKEND_URL;
   // 🆕 Fetch counts on load
   useEffect(() => {
     const fetchCounts = async () => {
       try {
         // Members
-        const membersRes = await axios.get("/api/members", { withCredentials: true });
+        const membersRes = await axios.get(`${BackendUrl}/members`, {
+          withCredentials: true,
+        });
         setMemberCount(membersRes.data.length);
 
         // Announcements
-        const annRes = await axios.get("/api/announcements", { withCredentials: true });
+        const annRes = await axios.get(`${BackendUrl}/announcements`, {
+          withCredentials: true,
+        });
         setAnnouncementCount(annRes.data.length);
       } catch (err) {
-        console.error("Error fetching dashboard counts", err);
+        toast.error("Error fetching dashboard counts", err);
       }
     };
     fetchCounts();
@@ -39,7 +45,7 @@ const AdminDashboard = () => {
       color: "from-blue-500 to-blue-600",
       bgColor: "from-blue-50 to-blue-100",
       change: "+12%",
-      trend: "up"
+      trend: "up",
     },
     {
       title: "Pending Payments",
@@ -48,7 +54,7 @@ const AdminDashboard = () => {
       color: "from-orange-500 to-orange-600",
       bgColor: "from-orange-50 to-orange-100",
       change: "-5%",
-      trend: "down"
+      trend: "down",
     },
     {
       title: "Announcements",
@@ -57,8 +63,8 @@ const AdminDashboard = () => {
       color: "from-purple-500 to-purple-600",
       bgColor: "from-purple-50 to-purple-100",
       change: "+3",
-      trend: "up"
-    }
+      trend: "up",
+    },
   ];
 
   return (
@@ -68,7 +74,9 @@ const AdminDashboard = () => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-3xl font-bold mb-2">Welcome back, Admin! 👋</h3>
-            <p className="text-blue-100 text-lg">Here's what's happening at your gym today</p>
+            <p className="text-blue-100 text-lg">
+              Here's what's happening at your gym today
+            </p>
           </div>
           <div className="hidden md:block">
             <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -91,20 +99,28 @@ const AdminDashboard = () => {
               `}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className={`bg-gradient-to-r ${card.color} p-3 rounded-xl shadow-lg`}>
+                <div
+                  className={`bg-gradient-to-r ${card.color} p-3 rounded-xl shadow-lg`}
+                >
                   <Icon className="text-white" size={24} />
                 </div>
                 <span
                   className={`
                   text-sm font-semibold px-2 py-1 rounded-full
-                  ${card.trend === "up" ? "text-green-700 bg-green-100" : "text-red-700 bg-red-100"}
+                  ${
+                    card.trend === "up"
+                      ? "text-green-700 bg-green-100"
+                      : "text-red-700 bg-red-100"
+                  }
                 `}
                 >
                   {card.change}
                 </span>
               </div>
               <div>
-                <h4 className="text-gray-600 text-sm font-medium mb-1">{card.title}</h4>
+                <h4 className="text-gray-600 text-sm font-medium mb-1">
+                  {card.title}
+                </h4>
                 <p className="text-3xl font-bold text-gray-800">{card.value}</p>
               </div>
             </div>
@@ -117,10 +133,26 @@ const AdminDashboard = () => {
         <h4 className="text-xl font-bold text-gray-800 mb-6">Quick Actions</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Add New Member", color: "from-green-500 to-green-600", icon: Users },
-            { label: "Process Payment", color: "from-blue-500 to-blue-600", icon: CreditCard },
-            { label: "Send Announcement", color: "from-purple-500 to-purple-600", icon: Megaphone },
-            { label: "View Reports", color: "from-gray-500 to-gray-600", icon: LayoutDashboard }
+            {
+              label: "Add New Member",
+              color: "from-green-500 to-green-600",
+              icon: Users,
+            },
+            {
+              label: "Process Payment",
+              color: "from-blue-500 to-blue-600",
+              icon: CreditCard,
+            },
+            {
+              label: "Send Announcement",
+              color: "from-purple-500 to-purple-600",
+              icon: Megaphone,
+            },
+            {
+              label: "View Reports",
+              color: "from-gray-500 to-gray-600",
+              icon: LayoutDashboard,
+            },
           ].map((action, index) => {
             const Icon = action.icon;
             return (
@@ -142,12 +174,26 @@ const AdminDashboard = () => {
 
       {/* Recent Activity */}
       <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-        <h4 className="text-xl font-bold text-gray-800 mb-6">Recent Activity</h4>
+        <h4 className="text-xl font-bold text-gray-800 mb-6">
+          Recent Activity
+        </h4>
         <div className="space-y-4">
           {[
-            { action: "New member registration", time: "2 minutes ago", type: "member" },
-            { action: "Payment received", time: "15 minutes ago", type: "payment" },
-            { action: "Announcement posted", time: "1 hour ago", type: "announcement" }
+            {
+              action: "New member registration",
+              time: "2 minutes ago",
+              type: "member",
+            },
+            {
+              action: "Payment received",
+              time: "15 minutes ago",
+              type: "payment",
+            },
+            {
+              action: "Announcement posted",
+              time: "1 hour ago",
+              type: "announcement",
+            },
           ].map((activity, index) => (
             <div
               key={index}
@@ -156,11 +202,13 @@ const AdminDashboard = () => {
               <div
                 className={`
                 p-2 rounded-full
-                ${activity.type === "member"
+                ${
+                  activity.type === "member"
                     ? "bg-blue-100 text-blue-600"
                     : activity.type === "payment"
-                      ? "bg-green-100 text-green-600"
-                      : "bg-purple-100 text-purple-600"}
+                    ? "bg-green-100 text-green-600"
+                    : "bg-purple-100 text-purple-600"
+                }
               `}
               >
                 {activity.type === "member" && <Users size={16} />}

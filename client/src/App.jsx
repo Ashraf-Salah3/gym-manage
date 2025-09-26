@@ -1,9 +1,8 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import AdminLogin from './pages/admin/Login';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AdminLogin from "./pages/admin/Login";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
-import Home from './pages/Home';
-import AdminRegister from './pages/admin/Register';
+import Home from "./pages/Home";
 import MemberLogin from "./pages/member/Login";
 import ManageMembers from "./pages/admin/ManageMembers";
 import Payments from "./pages/admin/Payments";
@@ -13,12 +12,13 @@ import ToDo from "./pages/member/ToDo";
 import Reminders from "./pages/member/Reminders";
 import Announcements from "./pages/admin/Announcements";
 import MemberAnnouncements from "./pages/member/Announcements";
+import { Toaster } from "sonner";
 function App() {
   return (
     <BrowserRouter>
+      <Toaster richColors position="top-center" />
       <Routes>
         <Route path="/" element={<Home />} /> {/* Add this line */}
-        <Route path="/admin/register" element={<AdminRegister />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/member/login" element={<MemberLogin />} />
         <Route path="/admin" element={<AdminLayout />}>

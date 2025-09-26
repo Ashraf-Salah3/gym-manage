@@ -1,14 +1,15 @@
-import { useState } from 'react';
-import axios from 'axios';
+import { useState } from "react";
+import axios from "axios";
 
 const AddMember = ({ onAddSuccess }) => {
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    package: '',
-    status: 'Active'
+    name: "",
+    email: "",
+    phone: "",
+    package: "",
+    status: "Active",
   });
+  const BackendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,19 +18,28 @@ const AddMember = ({ onAddSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('https://fitlife-gym-management-system.onrender.com/api/members', form, {
-        withCredentials: true
+      await axios.post(`${BackendUrl}/members`, form, {
+        withCredentials: true,
       });
       onAddSuccess(); // refresh list
-      setForm({ name: '', email: '', phone: '', package: '', status: 'Active' });
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        package: "",
+        status: "Active",
+      });
     } catch (err) {
-      alert('Error adding member');
+      alert("Error adding member");
       console.error(err);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-6 max-w-xl mx-auto">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-4 rounded shadow mb-6 max-w-xl mx-auto"
+    >
       <h2 className="text-xl font-bold mb-4">Add New Member</h2>
       <div className="grid grid-cols-1 gap-4">
         <input
@@ -74,7 +84,9 @@ const AddMember = ({ onAddSuccess }) => {
           <option value="Active">Active</option>
           <option value="Inactive">Inactive</option>
         </select>
-        <button className="bg-green-600 text-white py-2 rounded">Add Member</button>
+        <button className="bg-green-600 text-white py-2 rounded">
+          Add Member
+        </button>
       </div>
     </form>
   );

@@ -9,12 +9,11 @@ import {
   Eye,
   EyeOff,
   Shield,
-  Dumbbell,
   ArrowRight,
   Loader2,
   User,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 
 const AdminLogin = () => {
@@ -23,7 +22,7 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const BackendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -32,15 +31,11 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const res = await axios.post(
-        "https://fitlife-gym-management-system.onrender.com/api/admin/login",
+      await axios.post(
+        `${BackendUrl}/admin/login`,
         { email, password },
         { withCredentials: true }
       );
-
-      // Save gym name for UI
-      localStorage.setItem("gymName", res.data.admin.gymName);
-      localStorage.setItem("adminEmail", res.data.admin.email);
 
       // Redirect to dashboard
       navigate("/admin/dashboard");
@@ -59,14 +54,14 @@ const AdminLogin = () => {
       y: 0,
       transition: {
         duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 }
+    visible: { opacity: 1, x: 0 },
   };
 
   return (
@@ -77,24 +72,24 @@ const AdminLogin = () => {
           className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-full opacity-10"
           animate={{
             y: [0, -20, 0],
-            rotate: [0, 180, 360]
+            rotate: [0, 180, 360],
           }}
           transition={{
             duration: 20,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
         />
         <motion.div
           className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-purple-400 to-blue-500 rounded-full opacity-10"
           animate={{
             y: [0, 20, 0],
-            rotate: [360, 180, 0]
+            rotate: [360, 180, 0],
           }}
           transition={{
             duration: 25,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
         />
         <motion.div
@@ -102,12 +97,12 @@ const AdminLogin = () => {
           animate={{
             x: [0, 30, 0],
             y: [0, -30, 0],
-            scale: [1, 1.1, 1]
+            scale: [1, 1.1, 1],
           }}
           transition={{
             duration: 15,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         />
       </div>
@@ -119,10 +114,7 @@ const AdminLogin = () => {
         animate="visible"
       >
         {/* Header */}
-        <motion.div
-          className="text-center mb-8"
-          variants={itemVariants}
-        >
+        <motion.div className="text-center mb-8" variants={itemVariants}>
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-2xl">
               <Shield className="w-8 h-8 text-white" />
@@ -131,11 +123,15 @@ const AdminLogin = () => {
               <h1 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 FitLife
               </h1>
-              <p className="text-gray-600 text-xs font-medium tracking-wider">ADMIN LOGIN</p>
+              <p className="text-gray-600 text-xs font-medium tracking-wider">
+                ADMIN LOGIN
+              </p>
             </div>
           </div>
 
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">
+            Welcome Back
+          </h2>
           <p className="text-gray-600">Access your gym management dashboard</p>
         </motion.div>
 
@@ -194,7 +190,11 @@ const AdminLogin = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </motion.div>
@@ -282,10 +282,7 @@ const AdminLogin = () => {
         </motion.div>
 
         {/* Security Indicators */}
-        <motion.div
-          variants={itemVariants}
-          className="mt-8 text-center"
-        >
+        <motion.div variants={itemVariants} className="mt-8 text-center">
           <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
             <div className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-green-500" />
@@ -303,11 +300,10 @@ const AdminLogin = () => {
         </motion.div>
 
         {/* Quick Access */}
-        <motion.div
-          variants={itemVariants}
-          className="mt-6 text-center"
-        >
-          <p className="text-xs text-gray-500 mb-3">Need help? Contact support</p>
+        <motion.div variants={itemVariants} className="mt-6 text-center">
+          <p className="text-xs text-gray-500 mb-3">
+            Need help? Contact support
+          </p>
           <div className="flex justify-center gap-4">
             <Link
               to="/"

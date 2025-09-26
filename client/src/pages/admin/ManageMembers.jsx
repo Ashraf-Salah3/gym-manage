@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Plus, Search, X, Mail, Phone, User, Edit, Trash2 } from "lucide-react"; // ADDED Edit, Trash2
-import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const ManageMembers = () => {
   const [members, setMembers] = useState([]);
@@ -16,15 +16,16 @@ const ManageMembers = () => {
     password: "", // Add this line
   });
   const [editId, setEditId] = useState(null); // ADDED
-  const navigate = useNavigate();
+  const BackendUrl = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch members
   const fetchMembers = async () => {
     try {
-      const res = await axios.get("/api/members", { withCredentials: true });
+      const res = await axios.get(`${BackendUrl}/members`);
+
       setMembers(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error("Error fetching members", err);
+    } catch {
+      toast.error("Error fetching members");
     }
   };
 
@@ -38,7 +39,7 @@ const ManageMembers = () => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      password: name === "phone" ? value : prev.password, // Set password to phone if phone changes
+      password: name === "phone" ? value : prev.password,
     }));
   };
 
@@ -48,11 +49,15 @@ const ManageMembers = () => {
     try {
       if (editId) {
         // Edit
-        await axios.put(`/api/members/${editId}`, formData, { withCredentials: true });
+        await axios.put(`${BackendUrl}/members/${editId}`, formData, {
+          withCredentials: true,
+        });
       } else {
         // Add - set password as phone number
         const memberData = { ...formData, password: formData.phone };
-        await axios.post("/api/members", memberData, { withCredentials: true }); // <-- FIXED
+        await axios.post(`${BackendUrl}/members`, memberData, {
+          withCredentials: true,
+        }); // <-- FIXED
       }
       setShowModal(false);
       setFormData({
@@ -65,8 +70,8 @@ const ManageMembers = () => {
       });
       setEditId(null);
       fetchMembers();
-    } catch (err) {
-      console.error("Error saving member", err);
+    } catch {
+      toast.error("Error saving member");
     }
   };
 
@@ -87,10 +92,12 @@ const ManageMembers = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this member?")) {
       try {
-        await axios.delete(`/api/members/${id}`, { withCredentials: true });
+        await axios.delete(`${BackendUrl}/members/${id}`, {
+          withCredentials: true,
+        });
         fetchMembers();
       } catch (err) {
-        console.error("Error deleting member", err);
+        toast.error("Error deleting member", err);
       }
     }
   };
@@ -111,7 +118,9 @@ const ManageMembers = () => {
       vip: "bg-yellow-100 text-yellow-800 border-yellow-200",
       standard: "bg-green-100 text-green-800 border-green-200",
     };
-    return colors[type?.toLowerCase()] || "bg-gray-100 text-gray-800 border-gray-200";
+    return (
+      colors[type?.toLowerCase()] || "bg-gray-100 text-gray-800 border-gray-200"
+    );
   };
 
   return (
@@ -143,7 +152,10 @@ const ManageMembers = () => {
           {/* Search Bar */}
           <div className="lg:col-span-2">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
               <input
                 type="text"
                 placeholder="Search members by name or phone..."
@@ -174,25 +186,43 @@ const ManageMembers = () => {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Member</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Contact</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Membership</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Dates</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Actions</th> {/* ADDED */}
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    Member
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    Contact
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    Membership
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    Dates
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    Actions
+                  </th>{" "}
+                  {/* ADDED */}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredMembers.length > 0 ? (
                   filteredMembers.map((member) => (
-                    <tr key={member._id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <tr
+                      key={member._id}
+                      className="hover:bg-gray-50 transition-colors duration-150"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                             {member.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900">{member.name}</div>
-                            <div className="text-sm text-gray-500">Member ID: {member._id.slice(-6)}</div>
+                            <div className="font-semibold text-gray-900">
+                              {member.name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              Member ID: {member._id.slice(-6)}
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -209,17 +239,25 @@ const ManageMembers = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getMembershipTypeColor(member.membershipType)}`}>
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getMembershipTypeColor(
+                            member.membershipType
+                          )}`}
+                        >
                           {member.membershipType}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="space-y-1">
                           <div className="text-sm text-gray-900">
-                            <span className="font-medium">Joined:</span> {new Date(member.joinDate).toLocaleDateString()}
+                            <span className="font-medium">Joined:</span>{" "}
+                            {new Date(member.joinDate).toLocaleDateString()}
                           </div>
                           <div className="text-sm text-gray-600">
-                            <span className="font-medium">Expires:</span> {member.expiryDate ? new Date(member.expiryDate).toLocaleDateString() : "No expiry"}
+                            <span className="font-medium">Expires:</span>{" "}
+                            {member.expiryDate
+                              ? new Date(member.expiryDate).toLocaleDateString()
+                              : "No expiry"}
                           </div>
                         </div>
                       </td>
@@ -247,9 +285,16 @@ const ManageMembers = () => {
                   <tr>
                     <td colSpan="5" className="px-6 py-12 text-center">
                       <div className="text-gray-500">
-                        <User size={48} className="mx-auto mb-4 text-gray-300" />
-                        <p className="text-lg font-medium mb-2">No members found</p>
-                        <p className="text-sm">Try adjusting your search criteria or add a new member</p>
+                        <User
+                          size={48}
+                          className="mx-auto mb-4 text-gray-300"
+                        />
+                        <p className="text-lg font-medium mb-2">
+                          No members found
+                        </p>
+                        <p className="text-sm">
+                          Try adjusting your search criteria or add a new member
+                        </p>
                       </div>
                     </td>
                   </tr>
@@ -268,7 +313,9 @@ const ManageMembers = () => {
                       {member.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-gray-900 mb-1">{member.name}</div>
+                      <div className="font-semibold text-gray-900 mb-1">
+                        {member.name}
+                      </div>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Mail size={14} />
@@ -279,13 +326,25 @@ const ManageMembers = () => {
                           {member.phone}
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getMembershipTypeColor(member.membershipType)}`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getMembershipTypeColor(
+                              member.membershipType
+                            )}`}
+                          >
                             {member.membershipType}
                           </span>
                         </div>
                         <div className="text-sm text-gray-500">
-                          <div>Joined: {new Date(member.joinDate).toLocaleDateString()}</div>
-                          <div>Expires: {member.expiryDate ? new Date(member.expiryDate).toLocaleDateString() : "No expiry"}</div>
+                          <div>
+                            Joined:{" "}
+                            {new Date(member.joinDate).toLocaleDateString()}
+                          </div>
+                          <div>
+                            Expires:{" "}
+                            {member.expiryDate
+                              ? new Date(member.expiryDate).toLocaleDateString()
+                              : "No expiry"}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -311,8 +370,12 @@ const ManageMembers = () => {
             ) : (
               <div className="p-12 text-center">
                 <User size={48} className="mx-auto mb-4 text-gray-300" />
-                <p className="text-lg font-medium text-gray-500 mb-2">No members found</p>
-                <p className="text-sm text-gray-400">Try adjusting your search criteria or add a new member</p>
+                <p className="text-lg font-medium text-gray-500 mb-2">
+                  No members found
+                </p>
+                <p className="text-sm text-gray-400">
+                  Try adjusting your search criteria or add a new member
+                </p>
               </div>
             )}
           </div>
