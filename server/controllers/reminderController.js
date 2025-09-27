@@ -4,11 +4,11 @@ import Reminder from "../models/Reminder.js";
 // Admin sends reminder
 export const sendReminder = async (req, res) => {
   try {
-    const { memberId, amount, dueDate,  } = req.body;
+    const { memberId, amount, dueDate } = req.body;
 
     const reminder = new Reminder({
       memberId,
-      message: `Hi, your gym membership payment of ₹${amount} is due on ${new Date(
+      message: `Hi, your gym membership payment of E${amount} is due on ${new Date(
         dueDate
       ).toLocaleDateString()}. Please clear it to avoid interruption. Ignore if paid.`,
       dueDate,
@@ -37,7 +37,10 @@ export const deleteMyReminder = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const reminder = await Reminder.findOne({ _id: id, memberId: req.member.id });
+    const reminder = await Reminder.findOne({
+      _id: id,
+      memberId: req.member.id,
+    });
     if (!reminder) {
       return res.status(404).json({ message: "Reminder not found" });
     }
