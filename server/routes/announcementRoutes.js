@@ -1,7 +1,10 @@
 import express from "express";
-import { createAnnouncement, getAnnouncements, deleteAnnouncement } from "../controllers/announcementController.js";
-import authMiddleware from "../middleware/authMiddleware.js";   // ✅ Admin auth
-import memberAuth from "../middleware/memberAuth.js";           // ✅ Member auth
+import {
+  createAnnouncement,
+  getAnnouncements,
+  deleteAnnouncement,
+} from "../controllers/announcementController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -11,6 +14,6 @@ router.get("/", authMiddleware, getAnnouncements);
 router.delete("/:id", authMiddleware, deleteAnnouncement);
 
 // Member
-router.get("/member", memberAuth, getAnnouncements);
+router.get("/member", getAnnouncements);
 
 export default router;

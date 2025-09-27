@@ -7,22 +7,24 @@ export const createAnnouncement = async (req, res) => {
     const announcement = await Announcement.create({
       message,
       date: new Date(),
-      gym: req.admin.gymName
     });
     res.status(201).json(announcement);
   } catch (err) {
-    res.status(500).json({ message: "Error creating announcement", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error creating announcement", error: err.message });
   }
 };
 
 // 🆕 Get announcements (both admin & member)
 export const getAnnouncements = async (req, res) => {
   try {
-    const gymName = req.admin?.gymName || req.member?.gymName;
-    const announcements = await Announcement.find({ gym: gymName }).sort({ date: -1 });
+    const announcements = await Announcement.find({}, { __v: false });
     res.json(announcements);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching announcements", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching announcements", error: err.message });
   }
 };
 
@@ -32,6 +34,8 @@ export const deleteAnnouncement = async (req, res) => {
     await Announcement.findByIdAndDelete(req.params.id);
     res.json({ message: "Announcement deleted" });
   } catch (err) {
-    res.status(500).json({ message: "Error deleting announcement", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error deleting announcement", error: err.message });
   }
 };

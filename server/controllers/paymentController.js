@@ -5,7 +5,7 @@ import PDFDocument from "pdfkit";
 
 export const getPayments = async (req, res) => {
   try {
-    const members = await Member.find({ gymName: req.admin.gymName });
+    const members = await Member.find();
     res.json(members);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch members" });
@@ -14,8 +14,6 @@ export const getPayments = async (req, res) => {
 
 export const makePayment = async (req, res) => {
   try {
-  
-
     const { memberId, amount, plan } = req.body;
     const member = await Member.findById(memberId);
 
@@ -25,7 +23,6 @@ export const makePayment = async (req, res) => {
       memberId,
       amount,
       plan,
-      gymName: req.admin.gymName
     });
     await payment.save();
 
@@ -35,11 +32,9 @@ export const makePayment = async (req, res) => {
 
     res.json({ message: "Payment recorded", paymentId: payment._id });
   } catch (err) {
-    console.error("PAYMENT ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };
-
 
 export const getReceipt = async (req, res) => {
   try {
@@ -49,7 +44,10 @@ export const getReceipt = async (req, res) => {
 
     const doc = new PDFDocument();
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=receipt-${payment._id}.pdf`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=receipt-${payment._id}.pdf`
+    );
     doc.pipe(res);
 
     doc.fontSize(20).text("Gym Payment Receipt", { align: "center" });
@@ -58,7 +56,6 @@ export const getReceipt = async (req, res) => {
     doc.text(`Plan: ${payment.plan}`);
     doc.text(`Amount: ₹${payment.amount}`);
     doc.text(`Date: ${new Date(payment.date).toLocaleDateString()}`);
-    doc.text(`Gym: ${payment.gymName}`);
 
     doc.end();
   } catch (err) {
@@ -71,7 +68,11 @@ export const sendReminder = async (req, res) => {
     const member = await Member.findById(req.params.id);
     if (!member) return res.status(404).json({ error: "Member not found" });
 
-    const message = `Hi ${member.name}, your gym membership payment of ₹${member.amount || ""} is due. Please clear it to avoid interruption. Ignore if paid. – ${member.gymName}`;
+    const message = `Hi ${member.name}, your gym membership payment of ₹${
+      member.amount || ""
+    } is due. Please clear it to avoid interruption. Ignore if paid. – ${
+      member.gymName
+    }`;
 
     member.reminders.push({ message });
     await member.save();

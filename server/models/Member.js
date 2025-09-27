@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-
 const memberSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -10,17 +9,18 @@ const memberSchema = new mongoose.Schema(
     membershipType: { type: String, required: true },
     joinDate: { type: Date, default: Date.now },
     expiryDate: { type: Date },
-    gymName: { type: String, required: true }, // ✅ Link to admin's gym
+
     password: { type: String, required: true },
     lastPaymentDate: { type: Date }, // NEW
     lastPaymentId: { type: mongoose.Schema.Types.ObjectId, ref: "Payment" }, // NEW
-    reminders: [ // NEW
+    reminders: [
+      // NEW
       {
         message: String,
         date: { type: Date, default: Date.now },
-        seen: { type: Boolean, default: false }
-      }
-    ]
+        seen: { type: Boolean, default: false },
+      },
+    ],
   },
   { timestamps: true }
 );
